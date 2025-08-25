@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Calculadora de costos",
     description: "Calculadora de costos y precios de venta de productos gastronómicos",
-    images: ["https://astroloca-bot.vercel.app/astroloca-300.webp"],
+    images: ["https://calculadora-gastronomia.vercel.app/calculadora.webp"],
     type: "website",
   },
   icons: {
