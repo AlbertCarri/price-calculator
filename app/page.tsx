@@ -23,6 +23,7 @@ import {
 import { Trash2, Plus, Calculator, Moon, Sun } from "lucide-react";
 import { stringify } from "querystring";
 import { parse } from "path";
+import { sign } from "crypto";
 
 interface RawMaterial {
   id: string;
@@ -42,10 +43,22 @@ interface Product {
   ingredients: Ingredient[];
 }
 
-/*localStorage.setItem(
-  "rawMaterials",
-  JSON.stringify([{ id: "1", name: "fgjh", pricePerKg: 100 }])
-);*/
+const currencies = [
+  { iso: "USD", symbol: "$" }, // Dólar estadounidense
+  { iso: "EUR", symbol: "€" }, // Euro
+  { iso: "JPY", symbol: "¥" }, // Yen japonés
+  { iso: "GBP", symbol: "£" }, // Libra esterlina
+  { iso: "CAD", symbol: "$" }, // Dólar canadiense
+  { iso: "AUD", symbol: "$" }, // Dólar australiano
+  { iso: "CHF", symbol: "CHF" }, // Franco suizo
+  { iso: "MXN", symbol: "$" }, // Peso mexicano
+  { iso: "ARS", symbol: "$" }, // Peso argentino
+  { iso: "BRL", symbol: "R$" }, // Real brasileño
+  { iso: "CNY", symbol: "¥" }, // Yuan chino
+  { iso: "INR", symbol: "₹" }, // Rupia india
+  { iso: "RUB", symbol: "₽" }, // Rublo ruso
+  { iso: "ZAR", symbol: "R" }, // Rand sudafricano
+];
 
 export default function CostCalculator() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -56,6 +69,7 @@ export default function CostCalculator() {
     quantity: 1,
     ingredients: [],
   });
+  const [currency, setCurrency] = useState("USD");
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme");
@@ -195,7 +209,26 @@ export default function CostCalculator() {
             Calcula el costo final de tus productos basado en materia prima
           </p>
         </div>
-
+        <div className="flex flex-row items-baseline">
+          <div>Seleccione una moneda :</div>
+          <Select
+            value={currency}
+            onValueChange={(value) => {
+              setCurrency(value);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccione la moneda" />
+            </SelectTrigger>
+            <SelectContent>
+              {currencies.map((curr) => (
+                <SelectItem key={curr.iso} value={curr.iso + curr.symbol}>
+                  {curr.iso} {curr.symbol}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="grid lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
@@ -220,7 +253,7 @@ export default function CostCalculator() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="pricePerKg">Precio por Kg ($)</Label>
+                  <Label htmlFor="pricePerKg">Precio por Kg ({currency})</Label>
                   <Input
                     id="pricePerKg"
                     type="number"
@@ -275,7 +308,8 @@ export default function CostCalculator() {
                             {material.name}
                           </TableCell>
                           <TableCell>
-                            ${material.pricePerKg.toFixed(2)}
+                            {currency.substring(3)}{" "}
+                            {material.pricePerKg.toFixed(2)}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -403,7 +437,7 @@ export default function CostCalculator() {
                             />
                           </TableCell>
                           <TableCell>
-                            $
+                            {currency.substring(3)}
                             {getIngredientCost(
                               ingredient.materialId,
                               ingredient.grams
@@ -436,19 +470,22 @@ export default function CostCalculator() {
                       Costo total materia prima:
                     </span>
                     <span className="text-lg font-bold">
-                      ${totalRawMaterialCost.toFixed(2)}
+                      {currency.substring(3)}
+                      {totalRawMaterialCost.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Costo con ganancia:</span>
                     <span className="text-lg font-bold text-primary">
-                      ${totalWithProfit.toFixed(2)}
+                      {currency.substring(3)}
+                      {totalWithProfit.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center border-t pt-3">
                     <span className="font-medium">Precio por unidad:</span>
                     <span className="text-xl font-bold text-accent">
-                      ${pricePerUnit.toFixed(2)}
+                      {currency.substring(3)}
+                      {pricePerUnit.toFixed(2)}
                     </span>
                   </div>
                 </CardContent>
